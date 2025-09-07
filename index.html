@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MediBot - Chat</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="chat-app">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>🤖 MediBot</h2>
+      <ul>
+        <li onclick="showTab('chat')">💬 Chat</li>
+        <li onclick="showTab('reminders')">⏰ Reminders</li>
+        <li onclick="showTab('schedule')">📅 Schedule</li>
+        <li onclick="showTab('profile')">👤 Profile</li>
+        <li onclick="showTab('help')">❓ Help</li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+      <!-- Chat Tab -->
+      <div id="chat" class="tab active">
+        <div class="chat-box" id="chat-box"></div>
+        <div class="input-area">
+          <input type="text" id="message" placeholder="Type a message...">
+          <button onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+
+      <!-- Reminders Tab -->
+      <div id="reminders" class="tab">
+        <h3>Reminders</h3>
+        <ul id="reminder-list"></ul>
+        <input type="text" id="reminder-input" placeholder="New reminder...">
+        <button onclick="addReminder()">Add</button>
+      </div>
+
+      <!-- Schedule Tab -->
+      <div id="schedule" class="tab">
+        <h3>Schedule</h3>
+        <ul id="schedule-list"></ul>
+        <input type="text" id="schedule-input" placeholder="New task...">
+        <button onclick="addSchedule()">Add</button>
+      </div>
+
+      <!-- Profile Tab -->
+      <div id="profile" class="tab">
+        <h3>Profile</h3>
+        <p>Name: <input type="text" id="profile-name"></p>
+        <p>Email: <input type="email" id="profile-email"></p>
+        <button onclick="saveProfile()">Save</button>
+      </div>
+
+      <!-- Help Tab -->
+      <div id="help" class="tab">
+        <h3>Help</h3>
+        <p>💬 Use the Chat tab to talk with MediBot.</p>
+        <p>⏰ Set reminders to stay on track.</p>
+        <p>📅 Organize your tasks with Schedule.</p>
+        <p>👤 Update your profile info.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab Switcher
+    function showTab(tabId) {
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+    }
+
+    // Chat Function
+    async function sendMessage() {
+      const input = document.getElementById("message");
+      const chatBox = document.getElementById("chat-box");
+      const userMessage = input.value.trim();
+      if (!userMessage) return;
+
+      chatBox.innerHTML += `<div class="message user">${userMessage}</div>`;
+      input.value = "";
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage })
+      });
+      const data = await response.json();
+
+      chatBox.innerHTML += `<div class="message bot">${data.reply}</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Reminders
+    function addReminder() {
+      const input = document.getElementById("reminder-input");
+      const list = document.getElementById("reminder-list");
+      if (input.value.trim() === "") return;
+      list.innerHTML += `<li>${input.value}</li>`;
+      input.value = "";
+    }
+
+    // Schedule
+    function addSchedule() {
+      const input = document.getElementById("schedule-input");
+      const list = document.getElementById("schedule-list");
+      if (input.value.trim() === "") return;
+      list.innerHTML += `<li>${input.value}</li>`;
+      input.value = "";
+    }
+
+    // Profile
+    function saveProfile() {
+      alert("Profile saved ✅");
+    }
+  </script>
+</body>
+</html>
